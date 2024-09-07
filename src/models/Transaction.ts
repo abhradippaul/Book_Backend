@@ -10,12 +10,12 @@ export interface ITransaction extends Document {
 
 const TransactionSchema: Schema = new Schema({
   bookId: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: "Book",
   },
   userId: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: "User",
   },

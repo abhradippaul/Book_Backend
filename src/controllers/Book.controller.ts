@@ -58,8 +58,8 @@ export async function getBooksWithRent(req: Request, res: Response) {
 
     const users = await Book.find({
       rentPerDay: {
-        $gt: minRent,
-        $lt: maxRent,
+        $gte: minRent,
+        $lte: maxRent,
       },
     });
     return res.status(200).json({
@@ -88,8 +88,8 @@ export async function getBooksWithAdvanceSearch(req: Request, res: Response) {
       category,
       bookName,
       rentPerDay: {
-        $gt: minRent,
-        $lt: maxRent,
+        $gte: minRent,
+        $lte: maxRent,
       },
     });
     return res.status(200).json({
