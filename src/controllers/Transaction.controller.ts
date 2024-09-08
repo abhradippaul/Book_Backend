@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Transaction } from "../models/Transaction.js";
-import { IUser, User } from "../models/User.js";
+import { User } from "../models/User.js";
 import { Book } from "../models/Book.js";
 import mongoose from "mongoose";
 
@@ -140,37 +140,95 @@ export async function createTransactionReturn(req: Request, res: Response) {
 
 export async function getUsersWithSameBook(req: Request, res: Response) {
   try {
-    const { bookId } = req.params;
+    const { bookName } = req.params;
 
-    if (!bookId) {
+    if (!bookName) {
       return res.status(400).json({
-        message: "Book id is required",
+        message: "book name is required",
       });
     }
 
-    let users = await Transaction.aggregate([
+    const isBookExist = await Book.find({ bookName });
+
+    if (!isBookExist.length || !isBookExist[0]._id) {
+      return res.status(404).json({
+        message: "Book not found",
+      });
+    }
+
+    // let users = await Transaction.aggregate([
+    //   {
+    //     $match: { bookId: new mongoose.Types.ObjectId(isBookExist[0]?._id||"") },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "users",
+    //       localField: "userId",
+    //       foreignField: "_id",
+    //       as: "userDetails",
+    //       pipeline: [
+    //         {
+    //           $addFields: {
+    //             status: {
+    //               $cond: {
+    //                 if: { $eq: ["$returnDate", null] },
+    //                 then: "Issued at the moment",
+    //                 else: "Not issued at the moment",
+    //               },
+    //             },
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 0,
+    //       userDetails: 1,
+    //     },
+    //   },
+    // ]);
+
+    const users = await Book.aggregate([
       {
-        $match: { bookId: new mongoose.Types.ObjectId(bookId) },
+        $match: {
+          bookName,
+        },
       },
       {
         $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "userDetails",
+          from: "transactions",
+          localField: "_id",
+          foreignField: "bookId",
+          as: "transactionDetails",
           pipeline: [
             {
+              $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "userDetails",
+              },
+            },
+            {
               $addFields: {
-                status: {
-                  $cond: {
-                    if: { $eq: ["$returnDate", null] },
-                    then: "Issued at the moment",
-                    else: "Not issued at the moment",
-                  },
+                userDetails: {
+                  $first: "$userDetails",
                 },
               },
             },
           ],
+        },
+      },
+      {
+        $addFields: {
+          userDetails: "$transactionDetails.userDetails",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userDetails: 1,
         },
       },
     ]);
@@ -196,7 +254,7 @@ export async function getTotalRentWithBook(req: Request, res: Response) {
 
     if (!bookId) {
       return res.status(400).json({
-        message: "Book id is required",
+        message: "book id is required",
       });
     }
 
@@ -245,6 +303,13 @@ export async function getBooksWithUser(req: Request, res: Response) {
         },
       },
       {
+        $addFields: {
+          bookDetails: {
+            $first: "$bookDetails",
+          },
+        },
+      },
+      {
         $project: {
           _id: 0,
           bookDetails: 1,
@@ -254,7 +319,7 @@ export async function getBooksWithUser(req: Request, res: Response) {
 
     return res.status(200).json({
       message: "Books fetched successfully",
-      data: books[0],
+      data: books,
     });
   } catch (error) {
     console.error(error);
@@ -266,7 +331,7 @@ export async function getBooksWithUser(req: Request, res: Response) {
 
 export async function getTransactionsBetweenRange(req: Request, res: Response) {
   try {
-    const { startDate, endDate } = req.body;
+    const { startDate, endDate } = req.query;
     if (!startDate || !endDate) {
       return res.status(400).json({
         message: "Start and end date are required",
@@ -277,8 +342,8 @@ export async function getTransactionsBetweenRange(req: Request, res: Response) {
       {
         $match: {
           issueDate: {
-            $gte: new Date(startDate),
-            $lte: new Date(endDate),
+            $gte: new Date(startDate.toString()),
+            $lte: new Date(endDate.toString()),
           },
         },
       },

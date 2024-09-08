@@ -16,7 +16,7 @@ router.route("/issue").post(createTransaction);
 
 router.route("/return").patch(createTransactionReturn);
 
-router.route("/book/:bookId/users").get(getUsersWithSameBook);
+router.route("/book/:bookName/users").get(getUsersWithSameBook);
 
 router.route("/book/:bookId/rent").get(getTotalRentWithBook);
 

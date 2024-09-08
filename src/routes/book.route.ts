@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.route("/").get(getAllBooks).post(createBook);
 
-router.route("/search").get(getBookWithBookName);
+router.route("/:bookName/search").get(getBookWithBookName);
 
 router.route("/rent").get(getBooksWithRent);
 

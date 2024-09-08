@@ -18,11 +18,11 @@ export async function getAllBooks(req: Request, res: Response) {
 
 export async function getBookWithBookName(req: Request, res: Response) {
   try {
-    const { bookName } = req.body;
+    const { bookName } = req.params;
 
     if (!bookName) {
       return res.status(400).json({
-        message: "Missing required field.",
+        message: "Book name is required",
       });
     }
 
@@ -48,7 +48,7 @@ export async function getBookWithBookName(req: Request, res: Response) {
 
 export async function getBooksWithRent(req: Request, res: Response) {
   try {
-    const { minRent, maxRent } = req.body;
+    const { minRent, maxRent } = req.query;
 
     if (!minRent || !maxRent) {
       return res.status(400).json({
