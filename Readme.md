@@ -73,8 +73,8 @@ API for Transaction Queries
     Endpoint: GET /transactions/date-range?startDate={}&endDate={}
     Input: startDate, endDate
     Output: List of books issued in that date range and the users who issued them.
-
-    Step 5: Helper APIs
+    
+Helper APIs
     Get All Users
     Endpoint: GET /users
     Get All Books

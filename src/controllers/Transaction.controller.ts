@@ -156,39 +156,6 @@ export async function getUsersWithSameBook(req: Request, res: Response) {
       });
     }
 
-    // let users = await Transaction.aggregate([
-    //   {
-    //     $match: { bookId: new mongoose.Types.ObjectId(isBookExist[0]?._id||"") },
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: "users",
-    //       localField: "userId",
-    //       foreignField: "_id",
-    //       as: "userDetails",
-    //       pipeline: [
-    //         {
-    //           $addFields: {
-    //             status: {
-    //               $cond: {
-    //                 if: { $eq: ["$returnDate", null] },
-    //                 then: "Issued at the moment",
-    //                 else: "Not issued at the moment",
-    //               },
-    //             },
-    //           },
-    //         },
-    //       ],
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       _id: 0,
-    //       userDetails: 1,
-    //     },
-    //   },
-    // ]);
-
     const users = await Book.aggregate([
       {
         $match: {
